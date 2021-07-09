@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package ss.protos.v1;
+
+option csharp_namespace = "SS.Protos.V1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "protos/vehicle-position.proto";
+
+message GpsEvent {
+  google.protobuf.Timestamp timestamp = 1;
+  int64 routeId = 2; 
+  int64 providerId = 3;
+  VehicleType vehicleType = 4;
+  string licensePlateNumber = 5;
+
+  ss.protos.v1.VehiclePosition vehiclePosition = 6;     
+}
+
+enum VehicleType {
+  Tram = 0;
+  Trolleybus = 1 ;
+  Bus = 2;
+  SmallBus = 3;
+}
+
+
