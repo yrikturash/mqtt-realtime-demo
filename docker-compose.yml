@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: my-rabbit
+    volumes:
+      - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
+      - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./rabbitmq/etc/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+      - ./rabbitmq/logs:/var/log/rabbitmq/log
+    ports:
+      - 5672:5672 # rabbitmq main endpoint
+      - 15672:15672 # rabbitmq management ui
+      - 15670:15670 # mqtt built-in demos
+      - 15675:15675 # mqtt-over-ws
+  # gps-publisher:
+  #   build: ./gps-publisher
+  #   ports:
+  #     - "80:5000"
+  #   volumes:
+  #     - ./gps-publisher:/code
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: Development
