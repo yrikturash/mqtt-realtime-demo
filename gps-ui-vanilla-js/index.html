@@ -1,0 +1,86 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+        <script src=".\node_modules\leaflet-rotatedmarker\leaflet.rotatedMarker.js"></script>
+        <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+        <script src="https://cdn.rawgit.com/dcodeIO/protobuf.js/6.0.0/dist/protobuf.min.js"></script>
+
+
+    </head>
+    <body>
+        <style>#mapid { height: 100%; }</style>
+        <div id="mapid"></div>
+        <script>
+            var mymap = L.map('mapid').setView([49.83457901256914, 24.028424156611234], 12);
+            L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGFudGVkcmVhbWVyIiwiYSI6ImNrcXIyNGpsajBrbTgybnEzazc5Y3RnNWgifQ.4YQxTUFcsxT3GjlX8-nuzg', {
+                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                maxZoom: 18,
+                id: 'mapbox/streets-v11',
+                tileSize: 512,
+                zoomOffset: -1,
+                accessToken: 'pk.eyJ1IjoiZGFudGVkcmVhbWVyIiwiYSI6ImNrcXIyNGpsajBrbTgybnEzazc5Y3RnNWgifQ.4YQxTUFcsxT3GjlX8-nuzg'
+            }).addTo(mymap);
+          
+            L.marker([49.83457901256914, 24.028424156611234], {
+                rotationAngle: 90
+            }).addTo(mymap);
+
+
+            var client = mqtt.connect("ws://localhost/ws", 
+            {
+                port: 15675,
+                username: 'guest',
+                password: 'guest',
+            }) // you add a ws:// url here
+            client.subscribe("gps")
+
+            client.on("message", function (topic, payload) {
+
+                console.log(payload);
+                protobuf.load("protos/gps-event.proto", function(err, root) {
+                    if (err)
+                        throw err;
+
+                    // Obtain a message type
+                    var AwesomeMessage = root.lookupType("GpsEvent");
+
+                    // Verify the payload if necessary (i.e. when possibly incomplete or invalid)
+                    var errMsg = AwesomeMessage.verify(payload);
+                    if (errMsg)
+                        throw Error(errMsg);
+
+                    // Create a new message
+                    var message = AwesomeMessage.create(payload); // or use .fromObject if conversion is necessary
+
+                    // Encode a message to an Uint8Array (browser) or Buffer (node)
+                    var buffer = AwesomeMessage.encode(message).finish();
+                    // ... do something with buffer
+
+                    // Decode an Uint8Array (browser) or Buffer (node) to a message
+                    var message = AwesomeMessage.decode(buffer);
+                    // ... do something with message
+
+                    // If the application uses length-delimited buffers, there is also encodeDelimited and decodeDelimited.
+
+                    // Maybe convert the message back to a plain object
+                    var object = AwesomeMessage.toObject(message, {
+                        longs: String,
+                        enums: String,
+                        bytes: String,
+                        // see ConversionOptions
+                    });
+                    console.log(object);
+                });
+                // client.end()
+            })
+
+            // client.publish("mqtt/demo", "hello world!")
+        </script>
+    </body>
+
+</html>

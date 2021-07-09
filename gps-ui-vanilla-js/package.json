@@ -1,0 +1,17 @@
+{
+  "name": "gps-ui",
+  "version": "1.0.0",
+  "description": "Realtime transit using mqtt",
+  "main": "index.html",
+  "dependencies": {
+    "leaflet": "^1.7.1",
+    "leaflet-rotatedmarker": "^0.2.0",
+    "mqtt": "^4.2.8"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
